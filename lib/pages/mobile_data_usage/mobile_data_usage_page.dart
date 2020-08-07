@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_data_usage/models/mobile_data_usage/mobile_data_usage_response.dart';
 import 'package:mobile_data_usage/models/mobile_data_usage/record.dart';
+import 'package:mobile_data_usage/models/mobile_data_usage/year_record.dart';
 import 'package:mobile_data_usage/pages/base/base_bloc.dart';
 import 'package:mobile_data_usage/pages/mobile_data_usage/mobile_data_usage_bloc.dart';
 import 'package:mobile_data_usage/services/common/app_loading_service.dart';
@@ -107,7 +108,117 @@ class _MobileDataUsagePageState extends State<MobileDataUsagePage> {
   }
 
   Widget _buildMobileDataUsageWidget(List<Record> records) {
-    String test = records[0].volumeOfMobileData;
-    return Text(test);
+    _mobileDataUsageBloc.handleData(records);
+
+    return StreamBuilder<List<YearRecord>>(
+        stream: _mobileDataUsageBloc.bsYearRecords.stream,
+        builder: (context, AsyncSnapshot<List<YearRecord>> snapshot) {
+          final yearRecords = snapshot.data;
+
+          return (yearRecords != null && yearRecords.length > 0)
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Data from 2008 to 2018(Petabytes)',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: <Widget>[
+                          SizedBox(width: 18),
+                          Text(
+                            'Year',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.primaryColor,
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Text(
+                            'Data Volume',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.primaryColor,
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Text(
+                            'Impairment',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: yearRecords.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              child: ListTile(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 16.0),
+                                  leading: Text(
+                                    yearRecords[index].year.toString(),
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColor.primaryColor,
+                                    ),
+                                  ),
+                                  title: Text(yearRecords[index]
+                                      .totalVolumeOfMobileDataInDec
+                                      .toString()),
+                                  trailing: Visibility(
+                                    child: Ink(
+                                      decoration: const ShapeDecoration(
+                                        color: AppColor.primaryColor,
+                                        shape: CircleBorder(),
+                                      ),
+                                      child: IconButton(
+                                        icon: Image.asset(
+                                            'assets/images/ic_decrease.png'),
+                                        color: Colors.white,
+                                        onPressed: () {
+                                          AwesomeDialog(
+                                                  context: context,
+                                                  dialogType:
+                                                      DialogType.NO_HEADER,
+                                                  animType: AnimType.SCALE,
+                                                  headerAnimationLoop: false,
+                                                  title: 'Decrease Description',
+                                                  desc: yearRecords[index]
+                                                      .decreaseDescription,
+                                                  btnOkOnPress: () {},
+                                                  btnOkColor:
+                                                      AppColor.primaryColor)
+                                              .show();
+                                        },
+                                      ),
+                                    ),
+                                    visible: yearRecords[index].hasDataDecrease
+                                        ? true
+                                        : false,
+                                  )),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Container();
+        });
   }
 }

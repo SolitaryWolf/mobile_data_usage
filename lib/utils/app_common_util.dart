@@ -15,3 +15,4 @@ mixin NetworkUtil {
     return isNetworkOk;
   }
 }
+
