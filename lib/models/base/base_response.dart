@@ -15,6 +15,8 @@ Error
  */
 import 'dart:core';
 
+import 'package:dio/dio.dart';
+
 class BaseResponse<T> {
   BaseResponse(Map<String, dynamic> fullJson) {
     parsing(fullJson);
@@ -22,6 +24,7 @@ class BaseResponse<T> {
 
   T result;
   BaseError error;
+  DioError dioError;
 
   /// Abstract json to data
   T jsonToData(Map<String, dynamic> dataJson) {
@@ -50,6 +53,12 @@ class BaseResponse<T> {
         'result': result != null ? dataToJson(result) : null,
         'error': error?.toJson(),
       };
+
+  setDioError(DioError dioError) {
+    this.dioError = dioError;
+  }
+
+
 }
 
 class BaseError {

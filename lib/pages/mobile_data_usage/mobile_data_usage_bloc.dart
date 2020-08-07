@@ -1,21 +1,26 @@
 import 'package:dio/dio.dart';
+import 'package:mobile_data_usage/models/base/base_response.dart';
 import 'package:mobile_data_usage/models/mobile_data_usage/mobile_data_usage_request.dart';
 import 'package:mobile_data_usage/models/mobile_data_usage/mobile_data_usage_response.dart';
 import 'package:mobile_data_usage/pages/base/base_bloc.dart';
 import 'package:mobile_data_usage/services/mobile_data_usage/mobile_data_service.dart';
+import 'package:mobile_data_usage/utils/app_common_util.dart';
 import 'package:rxdart/rxdart.dart';
 
-class MobileDataUsageBloc extends BaseBloc {
+class MobileDataUsageBloc extends BaseBloc with NetworkUtil {
   final MobileDataUsageService mobileDataUsageService = MobileDataUsageServiceImpl();
 
   final BehaviorSubject<MobileDataUsageResponse> _bsMobileDataUsage =
       BehaviorSubject<MobileDataUsageResponse>();
+  final BehaviorSubject<String> _bsDioErrorMessage =
+  BehaviorSubject<String>();
 
   BehaviorSubject<MobileDataUsageResponse> get bsMobileDataUsage => _bsMobileDataUsage;
+  BehaviorSubject<String> get bsDioErrorMessage => _bsDioErrorMessage;
 
   fetchMobileDataUsage() async {
     try {
-      MobileDataUsageRequest request = MobileDataUsageRequest(resourceId: "a807b7ab-6cad-4aa6-87d0-e283a7353a0fq", limit: 100);
+      MobileDataUsageRequest request = MobileDataUsageRequest(resourceId: "a807b7ab-6cad-4aa6-87d0-e283a7353a0f", limit: 100);
       final Response<dynamic> response =
       await mobileDataUsageService.getMobileDataUsage(request).timeout(const Duration(seconds: 30));
       final MobileDataUsageResponse mobileDataUsageResponse =
@@ -23,9 +28,10 @@ class MobileDataUsageBloc extends BaseBloc {
       _bsMobileDataUsage.sink.add(mobileDataUsageResponse);
 
     } catch (error) {
-      if (error is DioError && error.type == DioErrorType.RESPONSE) {
-        //MobileDataUsageResponse res = MobileDataUsageResponse()
-        print(error.message);
+      if (error is DioError && (error.type == DioErrorType.RESPONSE || error.type == DioErrorType.DEFAULT)) {
+        MobileDataUsageResponse res = MobileDataUsageResponse({'': ''});
+        res.setDioError(error);
+        _bsMobileDataUsage.sink.add(res);
       }
     }
   }

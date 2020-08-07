@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_data_usage/utils/app_common_util.dart';
 
 import '../../utils/app_config.dart';
 
-class BaseRemoteSource {
+class BaseRemoteSource with NetworkUtil {
   BaseRemoteSource() {
     if (!kReleaseMode) {
       dio.interceptors.add(LogInterceptor(responseBody: true));
@@ -20,7 +21,14 @@ class BaseRemoteSource {
   Future<Response<dynamic>> wrapE(
       Future<Response<dynamic>> Function() dioApi) async {
     try {
-      return await dioApi();
+      var isNetworkOk = await isNetworkConnectionOk();
+      if (isNetworkOk) {
+        return await dioApi();
+      } else {
+        throw DioError(
+            error: 'Please check your internet connection!');
+      }
+
     } catch (error) {
       if (error is DioError && error.type == DioErrorType.RESPONSE) {
         final Response<dynamic> response = error.response;
@@ -28,7 +36,7 @@ class BaseRemoteSource {
         /// just uncomment line below
         //return response;
         final String errorMessage =
-            'Code ${response.statusCode} - ${response.statusMessage} ${response.data != null ? '\n' : ''} ${response.data}';
+            '${response.data}';
         throw DioError(
             request: error.request,
             response: error.response,
