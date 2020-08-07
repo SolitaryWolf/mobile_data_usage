@@ -25,23 +25,23 @@ class BaseRemoteSource with NetworkUtil {
       if (isNetworkOk) {
         return await dioApi();
       } else {
-        throw DioError(
-            error: 'Please check your internet connection!');
+        throw DioError(error: 'Please check your internet connection!');
       }
-
     } catch (error) {
       if (error is DioError && error.type == DioErrorType.RESPONSE) {
         final Response<dynamic> response = error.response;
+
         /// if you want by pass dio header error code to get response content
         /// just uncomment line below
         //return response;
-        final String errorMessage =
-            '${response.data}';
+        final String errorMessage = '${response.data}';
         throw DioError(
             request: error.request,
             response: error.response,
             type: error.type,
             error: errorMessage);
+      } else if (error.error != 'Please check your internet connection!') {
+        throw DioError(error: 'Unknown error');
       }
       rethrow;
     }

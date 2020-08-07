@@ -28,11 +28,13 @@ class MobileDataUsageBloc extends BaseBloc with NetworkUtil {
       _bsMobileDataUsage.sink.add(mobileDataUsageResponse);
 
     } catch (error) {
+      MobileDataUsageResponse res = MobileDataUsageResponse({'': ''});
       if (error is DioError && (error.type == DioErrorType.RESPONSE || error.type == DioErrorType.DEFAULT)) {
-        MobileDataUsageResponse res = MobileDataUsageResponse({'': ''});
         res.setDioError(error);
-        _bsMobileDataUsage.sink.add(res);
+      } else {
+        res.setDioError(DioError(error: "Unknown error"));
       }
+      _bsMobileDataUsage.sink.add(res);
     }
   }
 
