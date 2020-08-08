@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_data_usage/services/mobile_data_usage/mobile_data_usage_local_source.dart';
+import 'package:mobile_data_usage/utils/app_cache.dart';
 import 'package:mobile_data_usage/utils/app_common_util.dart';
 
 import '../../utils/app_config.dart';
@@ -11,6 +14,8 @@ class BaseRemoteSource with NetworkUtil {
     if (!kReleaseMode) {
       dio.interceptors.add(LogInterceptor(responseBody: true));
     }
+    dio.interceptors
+        .add(DioCacheManager(DioCacheUtil.getCacheConfig()).interceptor);
   }
 
   // Get base url by env
@@ -21,11 +26,15 @@ class BaseRemoteSource with NetworkUtil {
   Future<Response<dynamic>> wrapE(
       Future<Response<dynamic>> Function() dioApi) async {
     try {
-      var isNetworkOk = await isNetworkConnectionOk();
-      if (isNetworkOk) {
+      if (MobileDataUsageLocalSource.isCacheEnable) {
         return await dioApi();
       } else {
-        throw DioError(error: 'Please check your internet connection!');
+        var isNetworkOk = await isNetworkConnectionOk();
+        if (isNetworkOk) {
+          return await dioApi();
+        } else {
+          throw DioError(error: 'Please check your internet connection!');
+        }
       }
     } catch (error) {
       if (error is DioError && error.type == DioErrorType.RESPONSE) {
