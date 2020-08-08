@@ -9,7 +9,9 @@ import 'package:mobile_data_usage/services/mobile_data_usage/mobile_data_service
 import 'package:mobile_data_usage/utils/app_common_util.dart';
 import 'package:rxdart/rxdart.dart';
 
-class MobileDataUsageBloc extends BaseBloc with NetworkUtil {
+class MobileDataUsageBloc extends BaseBloc {
+  List<YearRecord> yearRecords = [];
+
   final MobileDataUsageService mobileDataUsageService =
   MobileDataUsageServiceImpl();
 
@@ -47,8 +49,6 @@ class MobileDataUsageBloc extends BaseBloc with NetworkUtil {
 
   handleData(List<Record> records) async {
     if (records.length > 0) {
-      List<YearRecord> yearRecords = [];
-
       // Get year from quarter
       for (var i = 0; i < records.length; i++) {
         var quarter = records[i].quarter;
@@ -102,9 +102,6 @@ class MobileDataUsageBloc extends BaseBloc with NetworkUtil {
         yearRecords[i].totalVolumeOfMobileDataInDec = totalDataUsageOfYearInDec;
         yearRecords[i].hasDataDecrease = hasDecrease;
       }
-
-      //yearRecords.add(YearRecord(year: 2018, hasDataDecrease: false, records: [Record(volumeOfMobileData: '0.12', quarter: '1', id: 1), Record(volumeOfMobileData: '0.1', quarter: '2', id: 2)]));
-
       _bsYearRecords.sink.add(yearRecords);
     }
   }

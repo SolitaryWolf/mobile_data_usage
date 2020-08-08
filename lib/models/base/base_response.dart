@@ -25,6 +25,8 @@ class BaseResponse<T> {
   T result;
   BaseError error;
   DioError dioError;
+  String help;
+  bool success;
 
   /// Abstract json to data
   T jsonToData(Map<String, dynamic> dataJson) {
@@ -39,6 +41,8 @@ class BaseResponse<T> {
   /// Parsing data to object
   dynamic parsing(Map<String, dynamic> fullJson) {
     if (fullJson != null) {
+      success = fullJson['success'];
+      help = fullJson['help'];
       result = fullJson['result'] != null
           ? jsonToData(fullJson['result'] as Map<String, dynamic>)
           : null;
@@ -50,6 +54,8 @@ class BaseResponse<T> {
 
   /// Data to json
   Map<String, dynamic> toJson() => <String, dynamic>{
+        'success': success,
+        'help': help,
         'result': result != null ? dataToJson(result) : null,
         'error': error?.toJson(),
       };
@@ -57,8 +63,6 @@ class BaseResponse<T> {
   setDioError(DioError dioError) {
     this.dioError = dioError;
   }
-
-
 }
 
 class BaseError {
@@ -69,7 +73,7 @@ class BaseError {
 
   factory BaseError.fromJson(Map<String, dynamic> json) => BaseError(
         type: json['type'] as String,
-    extras: json['extras'] as List,
+        extras: json['extras'] as List,
       );
 
   String type;

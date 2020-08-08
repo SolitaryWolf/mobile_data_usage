@@ -19,7 +19,7 @@ class BaseRemoteSource with NetworkUtil {
   }
 
   // Get base url by env
-  final String apiBaseUrl = Config.instance.env.apiBaseUrl;
+  final String apiBaseUrl = Config.instance.env?.apiBaseUrl;
   final Dio dio = Dio();
 
   // Wrap Dio Exception
