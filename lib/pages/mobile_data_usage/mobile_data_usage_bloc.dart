@@ -6,7 +6,6 @@ import 'package:mobile_data_usage/models/mobile_data_usage/record.dart';
 import 'package:mobile_data_usage/models/mobile_data_usage/year_record.dart';
 import 'package:mobile_data_usage/pages/base/base_bloc.dart';
 import 'package:mobile_data_usage/services/mobile_data_usage/mobile_data_service.dart';
-import 'package:mobile_data_usage/utils/app_common_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MobileDataUsageBloc extends BaseBloc {
