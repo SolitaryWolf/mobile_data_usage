@@ -162,63 +162,69 @@ class _MobileDataUsagePageState extends State<MobileDataUsagePage> {
                       ),
                       SizedBox(height: 16),
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: yearRecords.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              child: ListTile(
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 16.0),
-                                  leading: Text(
-                                    yearRecords[index].year.toString(),
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColor.primaryColor,
-                                    ),
-                                  ),
-                                  title: Text(yearRecords[index]
-                                      .totalVolumeOfMobileDataInDec
-                                      .toString()),
-                                  trailing: Visibility(
-                                    child: Ink(
-                                      decoration: const ShapeDecoration(
-                                        color: AppColor.primaryColor,
-                                        shape: CircleBorder(),
-                                      ),
-                                      child: IconButton(
-                                        icon: Image.asset(
-                                            'assets/images/ic_decrease.png'),
-                                        color: Colors.white,
-                                        onPressed: () {
-                                          AwesomeDialog(
-                                                  context: context,
-                                                  dialogType:
-                                                      DialogType.NO_HEADER,
-                                                  animType: AnimType.SCALE,
-                                                  headerAnimationLoop: false,
-                                                  title: 'Decrease Description',
-                                                  desc: yearRecords[index]
-                                                      .decreaseDescription,
-                                                  btnOkOnPress: () {},
-                                                  btnOkColor:
-                                                      AppColor.primaryColor)
-                                              .show();
-                                        },
-                                      ),
-                                    ),
-                                    visible: yearRecords[index].hasDataDecrease
-                                        ? true
-                                        : false,
-                                  )),
-                            );
-                          },
-                        ),
+                        child: _buildDataList(yearRecords),
                       ),
                     ],
                   ),
                 )
               : Container();
         });
+  }
+
+  Widget _buildDataList(List<YearRecord> yearRecords) {
+    return RefreshIndicator(
+      child: ListView.builder(
+        itemCount: yearRecords.length,
+        itemBuilder: (context, index) {
+          return Card(
+            child: ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                leading: Text(
+                  yearRecords[index].year.toString(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.primaryColor,
+                  ),
+                ),
+                title: Text(
+                    yearRecords[index].totalVolumeOfMobileDataInDec.toString()),
+                trailing: Visibility(
+                  child: Ink(
+                    decoration: const ShapeDecoration(
+                      color: AppColor.primaryColor,
+                      shape: CircleBorder(),
+                    ),
+                    child: IconButton(
+                      icon: Image.asset('assets/images/ic_decrease.png'),
+                      color: Colors.white,
+                      onPressed: () {
+                        AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.NO_HEADER,
+                                animType: AnimType.SCALE,
+                                headerAnimationLoop: false,
+                                title: 'Decrease Description',
+                                desc: yearRecords[index].decreaseDescription,
+                                btnOkOnPress: () {},
+                                btnOkColor: AppColor.primaryColor)
+                            .show();
+                      },
+                    ),
+                  ),
+                  visible: yearRecords[index].hasDataDecrease ? true : false,
+                )),
+          );
+        },
+      ),
+      onRefresh: _fetchData,
+    );
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _mobileDataUsageBloc.fetchMobileDataUsage();
+    });
   }
 }
